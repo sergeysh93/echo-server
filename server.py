@@ -1,20 +1,28 @@
 import socket
 
+LOG_FILE_NAME = "log.txt"
 sock = socket.socket()
 sock.bind(('', 9090))
-sock.listen(0)
-conn, addr = sock.accept()
-print(addr)
 
-msg = ''
+log_file = open(LOG_FILE_NAME, "a")
+
+
+def log_print(text):
+    log_file.write(text + "\n")
+
 
 while True:
-	data = conn.recv(1024)
-	if not data:
-		break
-	msg += data.decode()
-	conn.send(data)
+    sock.listen(0)
+    conn, addr = sock.accept()
+    log_print(F"Connected {addr}")
+    msg = ''
+    data = conn.recv(4096)
+    msg += data.decode()
+    if msg == "exit":
+        log_print("Received exit signal, closing")
+        break
+    log_print(F"Recieved {msg}")
+    conn.send(data)
 
-print(msg)
-
+log_file.close()
 conn.close()
